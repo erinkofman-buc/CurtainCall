@@ -9,6 +9,11 @@ const { generalLimiter } = require('./src/middleware/rateLimiter');
 
 const app = express();
 
+// Trust proxy (Render uses reverse proxy)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,7 +34,7 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     httpOnly: true,
-    secure: false, // Set true in production with HTTPS
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
   },
 }));
