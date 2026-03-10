@@ -1,6 +1,6 @@
 databases:
   - name: curtaincall-db
-    plan: starter
+    plan: basic-256mb
     databaseName: curtaincall
     user: curtaincall
 
