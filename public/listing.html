@@ -165,10 +165,10 @@
 
       function formatCondition(condition) {
         var labels = {
-          'new_with_tags': 'New with Tags',
-          'like_new': 'Like New',
-          'gently_used': 'Gently Used',
-          'well_loved': 'Well Loved'
+          'new-with-tags': 'New with Tags',
+          'like-new': 'Like New',
+          'gently-used': 'Gently Used',
+          'well-loved': 'Well Loved'
         };
         return labels[condition] || condition || '';
       }
@@ -180,9 +180,10 @@
           'contemporary': 'Contemporary',
           'lyrical': 'Lyrical',
           'tap': 'Tap',
-          'figure_skating': 'Figure Skating',
+          'figure-skating': 'Figure Skating',
           'gymnastics': 'Gymnastics',
-          'musical_theatre': 'Musical Theatre',
+          'musical-theatre': 'Musical Theatre',
+          'ballroom': 'Ballroom',
           'other': 'Other'
         };
         return labels[category] || category || '';
@@ -190,8 +191,8 @@
 
       async function loadListing() {
         try {
-          const listing = await API.fetch('/api/listings/' + listingId);
-          renderListing(listing);
+          const data = await API.fetch('/api/listings/' + listingId);
+          renderListing(data.listing || data);
           loadSongSuggestions();
         } catch (err) {
           showError();
@@ -229,7 +230,7 @@
 
         // Title + price
         titleEl.textContent = listing.title || '';
-        priceEl.textContent = formatPrice(listing.price || 0);
+        priceEl.textContent = formatPrice(listing.price_cents || 0);
 
         // Badges
         var badgeHtml = '';

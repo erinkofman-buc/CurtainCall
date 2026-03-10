@@ -126,20 +126,21 @@
       try {
         const res = await fetch('/api/listings?limit=4');
         if (!res.ok) return;
-        const listings = await res.json();
+        const data = await res.json();
+        const listings = data.listings || [];
         const grid = document.getElementById('featured-grid');
         if (!listings.length) {
           grid.innerHTML = '<p class="empty-state">No listings yet. Be the first to list a costume!</p>';
           return;
         }
         grid.innerHTML = listings.map(function(item) {
-          const img = item.photos && item.photos.length ? item.photos[0] : '/img/placeholder.png';
-          return '<a href="/listing/' + item.id + '" class="listing-card">' +
-            '<div class="listing-card-img"><img src="' + img + '" alt="' + (item.title || 'Costume') + '"></div>' +
-            '<div class="listing-card-body">' +
-              '<h3 class="listing-card-title">' + (item.title || 'Untitled') + '</h3>' +
-              '<p class="listing-card-price">$' + (item.price / 100).toFixed(2) + '</p>' +
-              '<p class="listing-card-meta">' + (item.category || '') + '</p>' +
+          const img = item.photos && item.photos.length ? item.photos[0] : '/img/placeholder.svg';
+          return '<a href="/listing?id=' + item.id + '" class="card">' +
+            '<div class="card-img"><img src="' + img + '" alt="' + (item.title || 'Costume') + '"></div>' +
+            '<div class="card-body">' +
+              '<h3 class="card-title">' + (item.title || 'Untitled') + '</h3>' +
+              '<p class="card-price">$' + (item.price_cents / 100).toFixed(2) + '</p>' +
+              '<p class="card-meta">' + (item.category || '') + '</p>' +
             '</div>' +
           '</a>';
         }).join('');

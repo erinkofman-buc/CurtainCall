@@ -28,34 +28,34 @@
       <div class="browse-header">
         <h1>Browse Costumes</h1>
         <div class="browse-controls">
-          <input type="search" id="search-box" class="search-box" placeholder="Search costumes...">
-          <select id="sort-select" class="sort-select">
+          <input type="search" id="search-box" class="form-input search-box" placeholder="Search costumes...">
+          <select id="sort-select" class="form-input sort-select">
             <option value="newest">Newest</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
+            <option value="price_low">Price: Low to High</option>
+            <option value="price_high">Price: High to Low</option>
           </select>
         </div>
       </div>
 
       <div class="filter-section">
         <div class="filter-chips" id="category-chips">
-          <button class="chip active" data-category="">All</button>
-          <button class="chip" data-category="ballet">Ballet</button>
-          <button class="chip" data-category="jazz">Jazz</button>
-          <button class="chip" data-category="contemporary">Contemporary</button>
-          <button class="chip" data-category="lyrical">Lyrical</button>
-          <button class="chip" data-category="tap">Tap</button>
-          <button class="chip" data-category="figure_skating">Figure Skating</button>
-          <button class="chip" data-category="gymnastics">Gymnastics</button>
-          <button class="chip" data-category="musical_theatre">Musical Theatre</button>
-          <button class="chip" data-category="other">Other</button>
+          <button class="filter-chip active" data-category="">All</button>
+          <button class="filter-chip" data-category="ballet">Ballet</button>
+          <button class="filter-chip" data-category="jazz">Jazz</button>
+          <button class="filter-chip" data-category="contemporary">Contemporary</button>
+          <button class="filter-chip" data-category="lyrical">Lyrical</button>
+          <button class="filter-chip" data-category="tap">Tap</button>
+          <button class="filter-chip" data-category="figure-skating">Figure Skating</button>
+          <button class="filter-chip" data-category="gymnastics">Gymnastics</button>
+          <button class="filter-chip" data-category="musical-theatre">Musical Theatre</button>
+          <button class="filter-chip" data-category="other">Other</button>
         </div>
         <div class="filter-chips" id="condition-chips">
-          <button class="chip active" data-condition="">All</button>
-          <button class="chip" data-condition="new_with_tags">New with Tags</button>
-          <button class="chip" data-condition="like_new">Like New</button>
-          <button class="chip" data-condition="gently_used">Gently Used</button>
-          <button class="chip" data-condition="well_loved">Well Loved</button>
+          <button class="filter-chip active" data-category="">All</button>
+          <button class="filter-chip" data-condition="new-with-tags">New with Tags</button>
+          <button class="filter-chip" data-condition="like-new">Like New</button>
+          <button class="filter-chip" data-condition="gently-used">Gently Used</button>
+          <button class="filter-chip" data-condition="well-loved">Well Loved</button>
         </div>
       </div>
 
@@ -118,7 +118,7 @@
       }
 
       function setActiveChip(container, attr, value) {
-        container.querySelectorAll('.chip').forEach(function(chip) {
+        container.querySelectorAll('.filter-chip').forEach(function(chip) {
           chip.classList.toggle('active', chip.dataset[attr] === value);
         });
       }
@@ -145,7 +145,7 @@
         const queryParams = new URLSearchParams();
         queryParams.set('page', currentPage);
         queryParams.set('per_page', perPage);
-        if (currentSearch) queryParams.set('q', currentSearch);
+        if (currentSearch) queryParams.set('search', currentSearch);
         if (currentCategory) queryParams.set('category', currentCategory);
         if (currentCondition) queryParams.set('condition', currentCondition);
         if (currentSort) queryParams.set('sort', currentSort);
@@ -153,7 +153,7 @@
         try {
           const data = await API.fetch('/api/listings?' + queryParams.toString());
           renderListings(data.listings || []);
-          renderPagination(data.total || 0, data.page || 1, data.per_page || perPage);
+          renderPagination(data.total || 0, data.page || 1, data.perPage || perPage);
           updateURL();
         } catch (err) {
           grid.innerHTML = '<p style="text-align:center; padding:40px;">Failed to load listings. Please try again.</p>';
@@ -172,10 +172,10 @@
             : '/img/placeholder.jpg';
           const conditionLabel = formatCondition(listing.condition);
           return '<a href="/listing?id=' + listing.id + '" class="card">' +
-            '<div class="card-img"><img src="' + imgSrc + '" alt="' + escapeHtml(listing.title) + '" loading="lazy"></div>' +
+            '<div class="card-img"><img src="' + imgSrc + '" alt="' + escapeHtml(listing.title) + '" loading="lazy" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div class=placeholder-img>' + escapeHtml(listing.category || '') + '</div>\'"></div>' +
             '<div class="card-body">' +
               '<h3 class="card-title">' + escapeHtml(listing.title) + '</h3>' +
-              '<p class="card-price">' + formatPrice(listing.price) + '</p>' +
+              '<p class="card-price">' + formatPrice(listing.price_cents) + '</p>' +
               '<p class="card-meta">' + escapeHtml(conditionLabel) + ' &middot; ' + escapeHtml(listing.city || '') + '</p>' +
             '</div>' +
           '</a>';
@@ -184,10 +184,10 @@
 
       function formatCondition(condition) {
         var labels = {
-          'new_with_tags': 'New with Tags',
-          'like_new': 'Like New',
-          'gently_used': 'Gently Used',
-          'well_loved': 'Well Loved'
+          'new-with-tags': 'New with Tags',
+          'like-new': 'Like New',
+          'gently-used': 'Gently Used',
+          'well-loved': 'Well Loved'
         };
         return labels[condition] || condition || '';
       }
@@ -229,7 +229,7 @@
 
       // Event: category chips
       categoryChips.addEventListener('click', function(e) {
-        const chip = e.target.closest('.chip');
+        const chip = e.target.closest('.filter-chip');
         if (!chip) return;
         currentCategory = chip.dataset.category || '';
         currentPage = 1;
@@ -239,7 +239,7 @@
 
       // Event: condition chips
       conditionChips.addEventListener('click', function(e) {
-        const chip = e.target.closest('.chip');
+        const chip = e.target.closest('.filter-chip');
         if (!chip) return;
         currentCondition = chip.dataset.condition || '';
         currentPage = 1;

@@ -20,6 +20,7 @@ const LISTINGS = [
     performance_history: 'Worn in National Ballet School spring showcase 2025. 3 performances total.',
     accessories: 'Matching feather headpiece included',
     price_cents: 28500,
+    photo: 'https://images.unsplash.com/photo-1518834107812-67b0b7c58434?w=600&h=750&fit=crop',
     transparency_pledge: true,
     sellerIndex: 0,
   },
@@ -32,6 +33,7 @@ const LISTINGS = [
     size_label: 'XS',
     performance_history: 'Used in 3 regional competitions (2024-2025 season). One small repair on left shoulder strap, professionally done.',
     price_cents: 15000,
+    photo: 'https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=600&h=750&fit=crop',
     transparency_pledge: true,
     sellerIndex: 1,
   },
@@ -45,6 +47,7 @@ const LISTINGS = [
     performance_history: 'Worn for one season in Skate Canada qualifiers.',
     accessories: 'Matching hair scrunchie and gloves',
     price_cents: 32000,
+    photo: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&h=750&fit=crop',
     transparency_pledge: true,
     sellerIndex: 2,
   },
@@ -56,6 +59,7 @@ const LISTINGS = [
     bust_cm: 84, waist_cm: 66, hip_cm: 90,
     size_label: 'M',
     price_cents: 12000,
+    photo: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=600&h=750&fit=crop',
     sellerIndex: 3,
   },
   {
@@ -68,6 +72,7 @@ const LISTINGS = [
     performance_history: 'Community theatre Cabaret production, 8 shows. Some feathers could use refreshing.',
     accessories: 'Arm cuffs and headpiece included',
     price_cents: 18500,
+    photo: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&h=750&fit=crop',
     transparency_pledge: true,
     sellerIndex: 0,
   },
@@ -80,6 +85,7 @@ const LISTINGS = [
     size_label: 'XS',
     performance_history: 'Worn in 2 provincial-level competitions.',
     price_cents: 22000,
+    photo: 'https://images.unsplash.com/photo-1566241477600-ac026ad43874?w=600&h=750&fit=crop',
     sellerIndex: 4,
   },
   {
@@ -91,6 +97,7 @@ const LISTINGS = [
     size_label: 'L',
     performance_history: 'End-of-year recital and one competition.',
     price_cents: 9500,
+    photo: 'https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=600&h=750&fit=crop',
     sellerIndex: 1,
   },
   {
@@ -103,6 +110,7 @@ const LISTINGS = [
     performance_history: 'Used for 2 competition seasons. Fringe is still full and flowing. Minor wear on inside lining.',
     accessories: 'Matching earrings',
     price_cents: 14000,
+    photo: 'https://images.unsplash.com/photo-1547153760-18fc86c45a60?w=600&h=750&fit=crop',
     transparency_pledge: true,
     sellerIndex: 3,
   },
@@ -144,7 +152,7 @@ async function seed() {
         l.bust_cm || null, l.waist_cm || null, l.hip_cm || null,
         l.torso_cm || null, l.inseam_cm || null, l.size_label || null,
         l.performance_history || null, l.accessories || null,
-        l.price_cents, JSON.stringify(['/img/placeholder.jpg']),
+        l.price_cents, JSON.stringify([l.photo]),
         l.transparency_pledge || false,
       ]
     );
