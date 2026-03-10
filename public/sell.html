@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sell a Costume — CurtainCall</title>
+  <link rel="stylesheet" href="/css/vars.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">CurtainCall</a>
+      <button class="hamburger" aria-label="Menu">&#9776;</button>
+      <ul class="navbar-links" id="auth-links">
+        <li><a href="/browse">Browse</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/login">Log In</a></li>
+        <li><a href="/signup" class="btn btn-gold btn-sm">Sign Up</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page-sell">
+    <div class="container">
+      <h1>List Your Costume</h1>
+      <p class="page-subtitle">Give your costume a second spotlight.</p>
+
+      <div id="sell-alert" class="alert" style="display:none;"></div>
+
+      <form id="sell-form" class="sell-form" enctype="multipart/form-data">
+
+        <!-- Section 1: Basics -->
+        <div class="form-section">
+          <h2>Basics</h2>
+
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required placeholder="e.g. Red Sequin Jazz Unitard">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category" name="category" required>
+                <option value="">Select category...</option>
+                <option value="ballet">Ballet</option>
+                <option value="jazz">Jazz</option>
+                <option value="contemporary">Contemporary</option>
+                <option value="lyrical">Lyrical</option>
+                <option value="tap">Tap</option>
+                <option value="hip-hop">Hip-Hop</option>
+                <option value="figure-skating">Figure Skating</option>
+                <option value="gymnastics">Gymnastics</option>
+                <option value="ballroom">Ballroom</option>
+                <option value="musical-theatre">Musical Theatre</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="condition">Condition</label>
+              <select id="condition" name="condition" required>
+                <option value="">Select condition...</option>
+                <option value="new-with-tags">New with Tags</option>
+                <option value="like-new">Like New</option>
+                <option value="gently-used">Gently Used</option>
+                <option value="well-loved">Well Loved</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="5" required placeholder="Describe your costume — fabric, colour, embellishments, fit..."></textarea>
+            <button type="button" id="ai-assist-btn" class="btn btn-outline btn-sm">AI Assist</button>
+          </div>
+        </div>
+
+        <!-- Section 2: Measurements -->
+        <div class="form-section">
+          <h2>Measurements</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bust_cm">Bust (cm)</label>
+              <input type="number" id="bust_cm" name="bust_cm" min="0" step="0.1" placeholder="cm">
+            </div>
+            <div class="form-group">
+              <label for="waist_cm">Waist (cm)</label>
+              <input type="number" id="waist_cm" name="waist_cm" min="0" step="0.1" placeholder="cm">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="hip_cm">Hip (cm)</label>
+              <input type="number" id="hip_cm" name="hip_cm" min="0" step="0.1" placeholder="cm">
+            </div>
+            <div class="form-group">
+              <label for="torso_cm">Torso (cm)</label>
+              <input type="number" id="torso_cm" name="torso_cm" min="0" step="0.1" placeholder="cm">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inseam_cm">Inseam (cm)</label>
+              <input type="number" id="inseam_cm" name="inseam_cm" min="0" step="0.1" placeholder="cm">
+            </div>
+            <div class="form-group">
+              <label for="size_label">Size Label</label>
+              <input type="text" id="size_label" name="size_label" placeholder="e.g. Adult Small, Child L">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: History & Details -->
+        <div class="form-section">
+          <h2>History &amp; Details</h2>
+
+          <div class="form-group">
+            <label for="performance_history">Performance History</label>
+            <textarea id="performance_history" name="performance_history" rows="3" placeholder="Tell buyers about this costume's story — competitions, recitals, shows..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="accessories">Accessories</label>
+            <textarea id="accessories" name="accessories" rows="2" placeholder="Headpiece, gloves, matching tights, etc."></textarea>
+          </div>
+
+          <div class="form-group form-check">
+            <input type="checkbox" id="transparency_pledge" name="transparency_pledge" required>
+            <label for="transparency_pledge">I pledge all details are accurate and honestly represented.</label>
+          </div>
+        </div>
+
+        <!-- Section 4: Photos & Pricing -->
+        <div class="form-section">
+          <h2>Photos &amp; Pricing</h2>
+
+          <div class="form-group">
+            <label>Photos (up to 8)</label>
+            <div class="photo-grid" id="photo-grid">
+              <div class="photo-slot photo-slot-add" id="add-photo-slot">
+                <span>+ Add Photo</span>
+                <input type="file" id="photo-input" accept="image/*" multiple style="display:none;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="price">Price</label>
+            <div class="input-prefix">
+              <span class="prefix">$</span>
+              <input type="number" id="price" name="price" min="1" step="0.01" required placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">List My Costume</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>CurtainCall</h4><p>The marketplace for pre-loved performance costumes across Canada.</p></div>
+        <div><h4>Explore</h4><p><a href="/browse">Browse Costumes</a></p><p><a href="/how-it-works">How It Works</a></p><p><a href="/about">About</a></p></div>
+        <div><h4>Legal</h4><p><a href="/terms">Terms of Service</a></p></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 CurtainCall. Made with love for performers.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    (function() {
+      // Auth check
+      if (!Auth.isLoggedIn()) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const form = document.getElementById('sell-form');
+      const alertDiv = document.getElementById('sell-alert');
+      const aiAssistBtn = document.getElementById('ai-assist-btn');
+      const photoInput = document.getElementById('photo-input');
+      const photoGrid = document.getElementById('photo-grid');
+      const addPhotoSlot = document.getElementById('add-photo-slot');
+
+      let selectedFiles = [];
+      const MAX_PHOTOS = 8;
+
+      // --- Alert helper ---
+      function showAlert(message, type) {
+        alertDiv.textContent = message;
+        alertDiv.className = 'alert alert-' + type;
+        alertDiv.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // --- AI Assist ---
+      aiAssistBtn.addEventListener('click', async function() {
+        const title = document.getElementById('title').value.trim();
+        const category = document.getElementById('category').value;
+        const condition = document.getElementById('condition').value;
+
+        if (!title) {
+          showAlert('Please enter a title first so AI can help describe your costume.', 'error');
+          return;
+        }
+
+        aiAssistBtn.disabled = true;
+        aiAssistBtn.textContent = 'Generating...';
+
+        try {
+          const result = await API.getDescription({ title, category, condition });
+          document.getElementById('description').value = result.description;
+        } catch (err) {
+          showAlert('AI Assist failed: ' + err.message, 'error');
+        } finally {
+          aiAssistBtn.disabled = false;
+          aiAssistBtn.textContent = 'AI Assist';
+        }
+      });
+
+      // --- Photo upload ---
+      addPhotoSlot.addEventListener('click', function() {
+        if (selectedFiles.length >= MAX_PHOTOS) return;
+        photoInput.click();
+      });
+
+      photoInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        const remaining = MAX_PHOTOS - selectedFiles.length;
+        const toAdd = files.slice(0, remaining);
+
+        toAdd.forEach(function(file) {
+          selectedFiles.push(file);
+          renderPhotoSlot(file, selectedFiles.length - 1);
+        });
+
+        if (selectedFiles.length >= MAX_PHOTOS) {
+          addPhotoSlot.style.display = 'none';
+        }
+
+        photoInput.value = '';
+      });
+
+      function renderPhotoSlot(file, index) {
+        const slot = document.createElement('div');
+        slot.className = 'photo-slot';
+        slot.dataset.index = index;
+
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = 'Photo preview';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'photo-remove';
+        removeBtn.textContent = '\u00d7';
+        removeBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          selectedFiles.splice(index, 1);
+          rebuildPhotoGrid();
+        });
+
+        slot.appendChild(img);
+        slot.appendChild(removeBtn);
+        photoGrid.insertBefore(slot, addPhotoSlot);
+      }
+
+      function rebuildPhotoGrid() {
+        var slots = photoGrid.querySelectorAll('.photo-slot:not(.photo-slot-add)');
+        slots.forEach(function(s) { s.remove(); });
+
+        selectedFiles.forEach(function(file, i) {
+          renderPhotoSlot(file, i);
+        });
+
+        addPhotoSlot.style.display = selectedFiles.length >= MAX_PHOTOS ? 'none' : '';
+      }
+
+      // --- Form submit ---
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const pledge = document.getElementById('transparency_pledge');
+        if (!pledge.checked) {
+          showAlert('Please confirm the transparency pledge before listing.', 'error');
+          return;
+        }
+
+        if (selectedFiles.length === 0) {
+          showAlert('Please add at least one photo.', 'error');
+          return;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+          var formData = new FormData();
+
+          // Text fields
+          formData.append('title', document.getElementById('title').value.trim());
+          formData.append('category', document.getElementById('category').value);
+          formData.append('condition', document.getElementById('condition').value);
+          formData.append('description', document.getElementById('description').value.trim());
+
+          // Measurements
+          var measureFields = ['bust_cm', 'waist_cm', 'hip_cm', 'torso_cm', 'inseam_cm'];
+          measureFields.forEach(function(field) {
+            var val = document.getElementById(field).value;
+            if (val) formData.append(field, val);
+          });
+
+          var sizeLabel = document.getElementById('size_label').value.trim();
+          if (sizeLabel) formData.append('size_label', sizeLabel);
+
+          // History & details
+          var perfHistory = document.getElementById('performance_history').value.trim();
+          if (perfHistory) formData.append('performance_history', perfHistory);
+
+          var accessories = document.getElementById('accessories').value.trim();
+          if (accessories) formData.append('accessories', accessories);
+
+          formData.append('transparency_pledge', 'true');
+
+          // Price: convert dollars to cents
+          var priceDollars = parseFloat(document.getElementById('price').value);
+          var priceCents = Math.round(priceDollars * 100);
+          formData.append('price_cents', priceCents);
+
+          // Photos
+          selectedFiles.forEach(function(file, i) {
+            formData.append('photos', file);
+          });
+
+          var result = await API.createListing(formData);
+
+          showAlert('Costume listed successfully!', 'success');
+
+          setTimeout(function() {
+            window.location.href = '/listing/' + result.id;
+          }, 1200);
+
+        } catch (err) {
+          showAlert('Error creating listing: ' + err.message, 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'List My Costume';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

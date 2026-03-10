@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Costumes — CurtainCall</title>
+  <link rel="stylesheet" href="/css/vars.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">CurtainCall</a>
+      <button class="hamburger" aria-label="Menu">&#9776;</button>
+      <ul class="navbar-links" id="auth-links">
+        <li><a href="/browse">Browse</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/login">Log In</a></li>
+        <li><a href="/signup" class="btn btn-gold btn-sm">Sign Up</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="browse-page">
+    <div class="container">
+      <div class="browse-header">
+        <h1>Browse Costumes</h1>
+        <div class="browse-controls">
+          <input type="search" id="search-box" class="search-box" placeholder="Search costumes...">
+          <select id="sort-select" class="sort-select">
+            <option value="newest">Newest</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-chips" id="category-chips">
+          <button class="chip active" data-category="">All</button>
+          <button class="chip" data-category="ballet">Ballet</button>
+          <button class="chip" data-category="jazz">Jazz</button>
+          <button class="chip" data-category="contemporary">Contemporary</button>
+          <button class="chip" data-category="lyrical">Lyrical</button>
+          <button class="chip" data-category="tap">Tap</button>
+          <button class="chip" data-category="figure_skating">Figure Skating</button>
+          <button class="chip" data-category="gymnastics">Gymnastics</button>
+          <button class="chip" data-category="musical_theatre">Musical Theatre</button>
+          <button class="chip" data-category="other">Other</button>
+        </div>
+        <div class="filter-chips" id="condition-chips">
+          <button class="chip active" data-condition="">All</button>
+          <button class="chip" data-condition="new_with_tags">New with Tags</button>
+          <button class="chip" data-condition="like_new">Like New</button>
+          <button class="chip" data-condition="gently_used">Gently Used</button>
+          <button class="chip" data-condition="well_loved">Well Loved</button>
+        </div>
+      </div>
+
+      <div class="listing-grid" id="listing-grid"></div>
+
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>CurtainCall</h4><p>The marketplace for pre-loved performance costumes across Canada.</p></div>
+        <div><h4>Explore</h4><p><a href="/browse">Browse Costumes</a></p><p><a href="/how-it-works">How It Works</a></p><p><a href="/about">About</a></p></div>
+        <div><h4>Legal</h4><p><a href="/terms">Terms of Service</a></p></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 CurtainCall. Made with love for performers.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    (function() {
+      const grid = document.getElementById('listing-grid');
+      const searchBox = document.getElementById('search-box');
+      const sortSelect = document.getElementById('sort-select');
+      const categoryChips = document.getElementById('category-chips');
+      const conditionChips = document.getElementById('condition-chips');
+      const paginationEl = document.getElementById('pagination');
+
+      let currentPage = 1;
+      const perPage = 24;
+      let currentCategory = '';
+      let currentCondition = '';
+      let currentSearch = '';
+      let currentSort = 'newest';
+      let debounceTimer = null;
+
+      // Read query params on load
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('category')) {
+        currentCategory = params.get('category');
+        setActiveChip(categoryChips, 'category', currentCategory);
+      }
+      if (params.get('condition')) {
+        currentCondition = params.get('condition');
+        setActiveChip(conditionChips, 'condition', currentCondition);
+      }
+      if (params.get('q')) {
+        currentSearch = params.get('q');
+        searchBox.value = currentSearch;
+      }
+      if (params.get('sort')) {
+        currentSort = params.get('sort');
+        sortSelect.value = currentSort;
+      }
+      if (params.get('page')) {
+        currentPage = parseInt(params.get('page'), 10) || 1;
+      }
+
+      function setActiveChip(container, attr, value) {
+        container.querySelectorAll('.chip').forEach(function(chip) {
+          chip.classList.toggle('active', chip.dataset[attr] === value);
+        });
+      }
+
+      function formatPrice(cents) {
+        const dollars = (cents / 100).toFixed(2);
+        return '$' + dollars;
+      }
+
+      function updateURL() {
+        const p = new URLSearchParams();
+        if (currentSearch) p.set('q', currentSearch);
+        if (currentCategory) p.set('category', currentCategory);
+        if (currentCondition) p.set('condition', currentCondition);
+        if (currentSort !== 'newest') p.set('sort', currentSort);
+        if (currentPage > 1) p.set('page', currentPage);
+        const qs = p.toString();
+        history.replaceState(null, '', '/browse' + (qs ? '?' + qs : ''));
+      }
+
+      async function fetchListings() {
+        grid.innerHTML = '<p style="text-align:center; padding:40px;">Loading...</p>';
+
+        const queryParams = new URLSearchParams();
+        queryParams.set('page', currentPage);
+        queryParams.set('per_page', perPage);
+        if (currentSearch) queryParams.set('q', currentSearch);
+        if (currentCategory) queryParams.set('category', currentCategory);
+        if (currentCondition) queryParams.set('condition', currentCondition);
+        if (currentSort) queryParams.set('sort', currentSort);
+
+        try {
+          const data = await API.fetch('/api/listings?' + queryParams.toString());
+          renderListings(data.listings || []);
+          renderPagination(data.total || 0, data.page || 1, data.per_page || perPage);
+          updateURL();
+        } catch (err) {
+          grid.innerHTML = '<p style="text-align:center; padding:40px;">Failed to load listings. Please try again.</p>';
+        }
+      }
+
+      function renderListings(listings) {
+        if (!listings.length) {
+          grid.innerHTML = '<p style="text-align:center; padding:40px;">No costumes found. Try adjusting your filters.</p>';
+          return;
+        }
+
+        grid.innerHTML = listings.map(function(listing) {
+          const imgSrc = (listing.photos && listing.photos.length > 0)
+            ? listing.photos[0]
+            : '/img/placeholder.jpg';
+          const conditionLabel = formatCondition(listing.condition);
+          return '<a href="/listing?id=' + listing.id + '" class="card">' +
+            '<div class="card-img"><img src="' + imgSrc + '" alt="' + escapeHtml(listing.title) + '" loading="lazy"></div>' +
+            '<div class="card-body">' +
+              '<h3 class="card-title">' + escapeHtml(listing.title) + '</h3>' +
+              '<p class="card-price">' + formatPrice(listing.price) + '</p>' +
+              '<p class="card-meta">' + escapeHtml(conditionLabel) + ' &middot; ' + escapeHtml(listing.city || '') + '</p>' +
+            '</div>' +
+          '</a>';
+        }).join('');
+      }
+
+      function formatCondition(condition) {
+        var labels = {
+          'new_with_tags': 'New with Tags',
+          'like_new': 'Like New',
+          'gently_used': 'Gently Used',
+          'well_loved': 'Well Loved'
+        };
+        return labels[condition] || condition || '';
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function renderPagination(total, page, perPageCount) {
+        const totalPages = Math.ceil(total / perPageCount);
+        if (totalPages <= 1) {
+          paginationEl.innerHTML = '';
+          return;
+        }
+
+        let html = '';
+        if (page > 1) {
+          html += '<button class="btn btn-secondary btn-sm" data-page="' + (page - 1) + '">&laquo; Prev</button>';
+        }
+        for (var i = 1; i <= totalPages; i++) {
+          if (i === page) {
+            html += '<span class="pagination-current">' + i + '</span>';
+          } else if (i <= 3 || i > totalPages - 3 || Math.abs(i - page) <= 1) {
+            html += '<button class="btn btn-secondary btn-sm" data-page="' + i + '">' + i + '</button>';
+          } else if (i === 4 && page > 5) {
+            html += '<span class="pagination-ellipsis">&hellip;</span>';
+          } else if (i === totalPages - 3 && page < totalPages - 4) {
+            html += '<span class="pagination-ellipsis">&hellip;</span>';
+          }
+        }
+        if (page < totalPages) {
+          html += '<button class="btn btn-secondary btn-sm" data-page="' + (page + 1) + '">Next &raquo;</button>';
+        }
+        paginationEl.innerHTML = html;
+      }
+
+      // Event: category chips
+      categoryChips.addEventListener('click', function(e) {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        currentCategory = chip.dataset.category || '';
+        currentPage = 1;
+        setActiveChip(categoryChips, 'category', currentCategory);
+        fetchListings();
+      });
+
+      // Event: condition chips
+      conditionChips.addEventListener('click', function(e) {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        currentCondition = chip.dataset.condition || '';
+        currentPage = 1;
+        setActiveChip(conditionChips, 'condition', currentCondition);
+        fetchListings();
+      });
+
+      // Event: sort
+      sortSelect.addEventListener('change', function() {
+        currentSort = sortSelect.value;
+        currentPage = 1;
+        fetchListings();
+      });
+
+      // Event: search with 300ms debounce
+      searchBox.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+          currentSearch = searchBox.value.trim();
+          currentPage = 1;
+          fetchListings();
+        }, 300);
+      });
+
+      // Event: pagination
+      paginationEl.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-page]');
+        if (!btn) return;
+        currentPage = parseInt(btn.dataset.page, 10);
+        fetchListings();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Initial load
+      fetchListings();
+    })();
+  </script>
+</body>
+</html>

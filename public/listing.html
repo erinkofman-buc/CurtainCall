@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Costume Details — CurtainCall</title>
+  <link rel="stylesheet" href="/css/vars.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">CurtainCall</a>
+      <button class="hamburger" aria-label="Menu">&#9776;</button>
+      <ul class="navbar-links" id="auth-links">
+        <li><a href="/browse">Browse</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/login">Log In</a></li>
+        <li><a href="/signup" class="btn btn-gold btn-sm">Sign Up</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="listing-page">
+    <div class="container">
+      <div id="listing-loading" style="text-align:center; padding:60px;">Loading...</div>
+      <div id="listing-error" style="display:none; text-align:center; padding:60px;">
+        <h2>Listing not found</h2>
+        <p>This costume may have been sold or removed.</p>
+        <a href="/browse" class="btn btn-primary">Browse Costumes</a>
+      </div>
+      <div id="listing-content" class="listing-detail" style="display:none;">
+        <!-- Left column: photos -->
+        <div class="listing-gallery">
+          <div class="gallery-main">
+            <img id="main-photo" src="/img/placeholder.jpg" alt="Costume photo">
+          </div>
+          <div class="gallery-thumbnails" id="thumbnails"></div>
+        </div>
+
+        <!-- Right column: details -->
+        <div class="listing-info">
+          <h1 id="listing-title"></h1>
+          <p class="listing-price" id="listing-price"></p>
+          <div class="listing-badges" id="listing-badges"></div>
+          <div class="listing-view-count" id="view-count"></div>
+
+          <div class="listing-seller" id="seller-info"></div>
+
+          <div id="transparency-badge" class="transparency-badge" style="display:none;">
+            <span class="badge badge-trust">Transparency Pledge</span>
+            <p>This seller has taken the CurtainCall Transparency Pledge.</p>
+          </div>
+
+          <div id="measurements-section" class="listing-section" style="display:none;">
+            <h3>Measurements</h3>
+            <div id="measurements-grid" class="measurements-grid"></div>
+          </div>
+
+          <div id="description-section" class="listing-section">
+            <h3>Description</h3>
+            <p id="listing-description"></p>
+          </div>
+
+          <div id="history-section" class="listing-section" style="display:none;">
+            <h3>Performance History</h3>
+            <p id="listing-history"></p>
+          </div>
+
+          <div id="accessories-section" class="listing-section" style="display:none;">
+            <h3>Included Accessories</h3>
+            <p id="listing-accessories"></p>
+          </div>
+
+          <div class="listing-actions">
+            <button id="buy-btn" class="btn btn-primary">Buy Now</button>
+            <button id="inquiry-btn" class="btn btn-secondary">Ask a Question</button>
+          </div>
+
+          <div id="inquiry-form" class="inquiry-form" style="display:none;">
+            <h3>Send a Message to the Seller</h3>
+            <div id="inquiry-alert" class="alert" style="display:none;"></div>
+            <textarea id="inquiry-message" class="form-input" rows="4" placeholder="What would you like to know about this costume?"></textarea>
+            <button id="send-inquiry-btn" class="btn btn-primary" style="margin-top:8px;">Send</button>
+          </div>
+
+          <div id="ai-panel" class="ai-panel" style="display:none;">
+            <h3>Song Suggestions for This Costume</h3>
+            <p class="ai-panel-subtitle">AI-powered recommendations for performances</p>
+            <ul id="ai-songs"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>CurtainCall</h4><p>The marketplace for pre-loved performance costumes across Canada.</p></div>
+        <div><h4>Explore</h4><p><a href="/browse">Browse Costumes</a></p><p><a href="/how-it-works">How It Works</a></p><p><a href="/about">About</a></p></div>
+        <div><h4>Legal</h4><p><a href="/terms">Terms of Service</a></p></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 CurtainCall. Made with love for performers.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const listingId = params.get('id');
+
+      const loadingEl = document.getElementById('listing-loading');
+      const errorEl = document.getElementById('listing-error');
+      const contentEl = document.getElementById('listing-content');
+      const mainPhoto = document.getElementById('main-photo');
+      const thumbnails = document.getElementById('thumbnails');
+      const titleEl = document.getElementById('listing-title');
+      const priceEl = document.getElementById('listing-price');
+      const badgesEl = document.getElementById('listing-badges');
+      const viewCountEl = document.getElementById('view-count');
+      const sellerInfo = document.getElementById('seller-info');
+      const transparencyBadge = document.getElementById('transparency-badge');
+      const measurementsSection = document.getElementById('measurements-section');
+      const measurementsGrid = document.getElementById('measurements-grid');
+      const descriptionEl = document.getElementById('listing-description');
+      const historySection = document.getElementById('history-section');
+      const historyEl = document.getElementById('listing-history');
+      const accessoriesSection = document.getElementById('accessories-section');
+      const accessoriesEl = document.getElementById('listing-accessories');
+      const buyBtn = document.getElementById('buy-btn');
+      const inquiryBtn = document.getElementById('inquiry-btn');
+      const inquiryForm = document.getElementById('inquiry-form');
+      const inquiryMessage = document.getElementById('inquiry-message');
+      const sendInquiryBtn = document.getElementById('send-inquiry-btn');
+      const inquiryAlert = document.getElementById('inquiry-alert');
+      const aiPanel = document.getElementById('ai-panel');
+      const aiSongs = document.getElementById('ai-songs');
+
+      if (!listingId) {
+        showError();
+        return;
+      }
+
+      function showError() {
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'block';
+        contentEl.style.display = 'none';
+      }
+
+      function formatPrice(cents) {
+        return '$' + (cents / 100).toFixed(2);
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function formatCondition(condition) {
+        var labels = {
+          'new_with_tags': 'New with Tags',
+          'like_new': 'Like New',
+          'gently_used': 'Gently Used',
+          'well_loved': 'Well Loved'
+        };
+        return labels[condition] || condition || '';
+      }
+
+      function formatCategory(category) {
+        var labels = {
+          'ballet': 'Ballet',
+          'jazz': 'Jazz',
+          'contemporary': 'Contemporary',
+          'lyrical': 'Lyrical',
+          'tap': 'Tap',
+          'figure_skating': 'Figure Skating',
+          'gymnastics': 'Gymnastics',
+          'musical_theatre': 'Musical Theatre',
+          'other': 'Other'
+        };
+        return labels[category] || category || '';
+      }
+
+      async function loadListing() {
+        try {
+          const listing = await API.fetch('/api/listings/' + listingId);
+          renderListing(listing);
+          loadSongSuggestions();
+        } catch (err) {
+          showError();
+        }
+      }
+
+      function renderListing(listing) {
+        loadingEl.style.display = 'none';
+        contentEl.style.display = '';
+
+        // Update page title
+        document.title = (listing.title || 'Costume') + ' — CurtainCall';
+
+        // Photos
+        const photos = listing.photos && listing.photos.length > 0
+          ? listing.photos
+          : ['/img/placeholder.jpg'];
+
+        mainPhoto.src = photos[0];
+        mainPhoto.alt = listing.title || 'Costume photo';
+
+        if (photos.length > 1) {
+          thumbnails.innerHTML = photos.map(function(photo, i) {
+            return '<img src="' + photo + '" alt="Photo ' + (i + 1) + '" class="thumbnail' + (i === 0 ? ' active' : '') + '" data-index="' + i + '">';
+          }).join('');
+
+          thumbnails.addEventListener('click', function(e) {
+            const thumb = e.target.closest('.thumbnail');
+            if (!thumb) return;
+            mainPhoto.src = photos[parseInt(thumb.dataset.index, 10)];
+            thumbnails.querySelectorAll('.thumbnail').forEach(function(t) { t.classList.remove('active'); });
+            thumb.classList.add('active');
+          });
+        }
+
+        // Title + price
+        titleEl.textContent = listing.title || '';
+        priceEl.textContent = formatPrice(listing.price || 0);
+
+        // Badges
+        var badgeHtml = '';
+        if (listing.category) {
+          badgeHtml += '<span class="badge badge-category">' + escapeHtml(formatCategory(listing.category)) + '</span>';
+        }
+        if (listing.condition) {
+          badgeHtml += '<span class="badge badge-condition">' + escapeHtml(formatCondition(listing.condition)) + '</span>';
+        }
+        badgesEl.innerHTML = badgeHtml;
+
+        // View count
+        if (listing.views !== undefined) {
+          viewCountEl.textContent = listing.views + ' view' + (listing.views !== 1 ? 's' : '');
+        }
+
+        // Seller
+        var sellerHtml = '<p class="seller-name">' + escapeHtml(listing.seller_name || 'Anonymous') + '</p>';
+        var location = [listing.city, listing.province].filter(Boolean).join(', ');
+        if (location) {
+          sellerHtml += '<p class="seller-location">' + escapeHtml(location) + '</p>';
+        }
+        sellerInfo.innerHTML = sellerHtml;
+
+        // Transparency pledge
+        if (listing.transparency_pledge) {
+          transparencyBadge.style.display = '';
+        }
+
+        // Measurements
+        var measurements = listing.measurements || {};
+        var measurementLabels = {
+          bust: 'Bust',
+          waist: 'Waist',
+          hips: 'Hips',
+          inseam: 'Inseam',
+          torso: 'Torso Length',
+          sleeve: 'Sleeve',
+          shoulder: 'Shoulder',
+          size: 'Size'
+        };
+        var measHtml = '';
+        Object.keys(measurementLabels).forEach(function(key) {
+          if (measurements[key]) {
+            measHtml += '<div class="measurement-item"><span class="measurement-label">' + measurementLabels[key] + '</span><span class="measurement-value">' + escapeHtml(measurements[key]) + '</span></div>';
+          }
+        });
+        if (measHtml) {
+          measurementsGrid.innerHTML = measHtml;
+          measurementsSection.style.display = '';
+        }
+
+        // Description
+        descriptionEl.textContent = listing.description || 'No description provided.';
+
+        // Performance history
+        if (listing.performance_history) {
+          historyEl.textContent = listing.performance_history;
+          historySection.style.display = '';
+        }
+
+        // Accessories
+        if (listing.accessories) {
+          accessoriesEl.textContent = listing.accessories;
+          accessoriesSection.style.display = '';
+        }
+
+        // Store listing data for buy/inquiry
+        window._listing = listing;
+      }
+
+      // Buy now
+      buyBtn.addEventListener('click', async function() {
+        buyBtn.disabled = true;
+        buyBtn.textContent = 'Processing...';
+        try {
+          const result = await API.checkout(listingId);
+          if (result && result.url) {
+            window.location.href = result.url;
+          } else {
+            alert('Unable to start checkout. Please try again.');
+            buyBtn.disabled = false;
+            buyBtn.textContent = 'Buy Now';
+          }
+        } catch (err) {
+          alert(err.message || 'Checkout failed. Please log in and try again.');
+          buyBtn.disabled = false;
+          buyBtn.textContent = 'Buy Now';
+        }
+      });
+
+      // Ask a question toggle
+      inquiryBtn.addEventListener('click', function() {
+        var visible = inquiryForm.style.display !== 'none';
+        inquiryForm.style.display = visible ? 'none' : '';
+        if (!visible) {
+          inquiryMessage.focus();
+        }
+      });
+
+      // Send inquiry
+      sendInquiryBtn.addEventListener('click', async function() {
+        var message = inquiryMessage.value.trim();
+        if (!message) {
+          inquiryAlert.textContent = 'Please enter a message.';
+          inquiryAlert.className = 'alert alert-error';
+          inquiryAlert.style.display = 'block';
+          return;
+        }
+
+        sendInquiryBtn.disabled = true;
+        sendInquiryBtn.textContent = 'Sending...';
+        inquiryAlert.style.display = 'none';
+
+        try {
+          await API.sendInquiry(listingId, message);
+          inquiryAlert.textContent = 'Message sent! The seller will respond to your email.';
+          inquiryAlert.className = 'alert alert-success';
+          inquiryAlert.style.display = 'block';
+          inquiryMessage.value = '';
+          sendInquiryBtn.textContent = 'Sent';
+        } catch (err) {
+          inquiryAlert.textContent = err.message || 'Failed to send message. Please log in and try again.';
+          inquiryAlert.className = 'alert alert-error';
+          inquiryAlert.style.display = 'block';
+          sendInquiryBtn.disabled = false;
+          sendInquiryBtn.textContent = 'Send';
+        }
+      });
+
+      // AI song suggestions
+      async function loadSongSuggestions() {
+        try {
+          const data = await API.fetch('/api/ai/songs?listing_id=' + listingId);
+          if (data && data.songs && data.songs.length > 0) {
+            aiSongs.innerHTML = data.songs.map(function(song) {
+              var html = '<li><strong>' + escapeHtml(song.title) + '</strong>';
+              if (song.artist) html += ' by ' + escapeHtml(song.artist);
+              if (song.reason) html += '<br><span class="ai-reason">' + escapeHtml(song.reason) + '</span>';
+              html += '</li>';
+              return html;
+            }).join('');
+            aiPanel.style.display = '';
+          }
+        } catch (err) {
+          // AI suggestions are optional, fail silently
+        }
+      }
+
+      // Kick it off
+      loadListing();
+    })();
+  </script>
+</body>
+</html>
